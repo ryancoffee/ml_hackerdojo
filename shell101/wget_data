@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# this file should download the data file driven by the bash101.driver script
+
+if [ -z "${datatype+xxx}" ]; then
+	export datatype=GSPC
+fi
+if [ -z "${datafile1+xxx}" ]; then
+	export datafile1=${datatype}.1.csv
+fi
+
+wgetdatatype=%5E${datatype}
+
+wget -nc --output-document=${mldir}${datafile1} http://ichart.finance.yahoo.com/table.csv?s=${wgetdatatype}
+
+exit

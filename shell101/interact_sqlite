@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# this should build a file and use sqlite3 to query the contents.
+
+if [ -z "${datafile5+xxx}" ]; then
+	export datafile5=${datatype}.5.dat
+fi
+if [ -z "${datafile6+xxx}" ]; then
+	export datafile6=${datatype}.6.dat
+fi
+if [ -z "${sqlitefile+xxx}" ]; then
+	export sqlitefile=sqlite.dat
+fi
+
+
+if [ ! -f $datafile6 ]; then
+	cut -d $commasep -f 1,2,3,6 ${datafile5} > tmp1
+	echo '# unwanted shift line' >> tmp1
+
+	echo '# unwanted shift line' > tmp2
+	cut -d $commasep -f 1,2,3,6 ${datafile5} >> tmp2
+
+	paste -d $commasep tmp1 tmp2 | grep -v 'unwanted' | grep -v '[[:blank:]]cdate' > tmp3
+
+	echo "cdate${commasep}cp${commasep}lag_pctg${commasep}lead_date${commasep}lead_pctg" > $datafile6
+	cut -d $commasep -f 1,2,4,5,8 tmp3 >> $datafile6 
+fi
+
+
+if [ ! -f $sqlitefile ]; then
+	grep -v cdate $datafile6 > $sqlitefile
+fi
+
+echo Time for sqlite3
+echo 'MIN(cdate) MAX(cdate) COUNT(cdate) MIN(lag_pctg) MAX(lag_pctg) AVG(lag_pctg)'
+sqlite3<<EOF
+CREATE TABLE
+mytable(cdate DATE,cp FLOAT,lag_pctg FLOAT,lead_date DATE,lead_pctg FLOAT);
+
+.mode csv
+.import sqlite.dat mytable
+
+SELECT
+MIN(cdate), MAX(cdate), COUNT(cdate), MIN(lag_pctg), MAX(lag_pctg), AVG(lag_pctg)
+FROM mytable;
+
+SELECT cdate FROM mytable WHERE lag_pctg < -.1100;
+SELECT cdate FROM mytable WHERE lag_pctg > .040 ;
+SELECT AVG(lead_pctg) FROM mytable WHERE lag_pctg < -.030;
+SELECT AVG(lead_pctg) FROM mytable WHERE lag_pctg >  .030;
+EOF
+
+exit

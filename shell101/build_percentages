@@ -1,0 +1,35 @@
+#!/bin/bash
+
+
+if [ -z "${commasep+xxx}" ];then
+	export commasep=$'\t'
+fi
+if [ -z "${sep+xxx}" ];then
+	export sep=$'\t'
+fi
+if [ -z "${datatype+xxx}" ]; then
+	export datatype=GSPC
+fi
+
+if [ -z "${datafile4+xxx}" ]; then
+	export datafile4=${datatype}.4.dat
+fi
+
+if [ -z "${datafile5+xxx}" ]; then
+	export datafile5=${datatype}.5.dat
+fi
+
+if [ -f $datafile5 ]; then
+echo "cdate${commasep}cp${commasep}lag_date${commasep}lag_price${commasep}delta${commasep}pctg" > $datafile5
+declare -f current_price previous_price delta pctg
+
+while read line; do
+	current_price=`echo $line | cut -d $commasep -f 2`
+	previous_price=`echo $line | cut -d $commasep -f 4`
+	delta=$(echo "scale=4; $current_price - $previous_price" | bc)
+	pctg=$(echo "scale=4; $delta / ($current_price+$previous_price)" | bc)
+	echo ${line}$commasep${delta}$commasep${pctg} >> $datafile5
+done < $datafile4
+fi
+
+exit

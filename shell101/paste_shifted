@@ -1,0 +1,41 @@
+#!/bin/bash
+
+cd ${mldir}
+
+if [ -z "${commasep+xxx}" ];then
+        export commasep=$'\t'
+fi
+if [ -z "${sep+xxx}" ];then
+        export sep=$'\t'
+fi
+
+if [ -z "${datatype+xxx}" ]; then
+        export datatype=GSPC
+fi
+
+if [ -z "${datafile2+xxx}" ]; then
+	export datafile2=${datatype}.2.dat
+fi
+if [ -z "${datafile3+xxx}" ]; then
+	export datafile3=${datatype}.3.dat
+fi
+
+tail -n +2 $datafile2 > $datafile3
+
+declare -i length2 length3 droplines
+length3=`cat $datafile3 | wc -l`
+length2=`cat $datafile2 | wc -l`
+echo $length2 and $length3
+if [ "$length3" -gt "$length2" ]; then
+	droplines=$(($length3-$length2))
+else
+	droplines=$(($length2-$length3))
+fi
+#droplines=$(($droplines + 1))
+echo dropping last $droplines lines from the paste result
+
+paste --delimiter=$commasep $datafile2 $datafile3 | head --lines=-$droplines | grep -v Date > $datafile4
+
+echo pasted with a shift $datafile2 and $datafile3 into  $datafile4
+
+exit

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# ~ann/shell101/bash101.driver
+
+# This script should run all the bash101 scripts.
+
+export mldir=${HOME}/ml_hackerdojo/shell101/
+cd ${mldir} 
+
+export datatype=GSPC
+
+export datafile1=${datatype}.1.csv
+export datafile2=${datatype}.2.dat
+export datafile3=${datatype}.3.dat
+export datafile4=${datatype}.4.dat
+export datafile5=${datatype}.5.dat
+export datafile6=${datatype}.6.dat
+
+export tabsep=$'\t'
+export commasep=','
+
+if [ ! -f $datafile5 ]; then
+./wget_data
+wait
+./grab_1_5
+wait
+./paste_shifted
+wait
+./build_percentages
+wait
+fi
+./interact_sqlite
+
+exit

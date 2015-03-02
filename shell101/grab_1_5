@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# this should paste two columns together in the datatype fole from yahoo
+if [ -z "${commasep+xxx}" ]; then
+        export commasep=$'\t'
+fi
+if [ -z "${sep+xxx}" ]; then
+        export sep=$'\t'
+fi
+if [ -z "${datatype+xxx}" ]; then
+        export datatype=GSPC
+fi
+if [ -z "${datafile2+xxx}" ]; then
+        export datafile2=${datatype}.2.dat
+fi
+if [ -z "${datafile1+xxx}" ]; then
+        export datafile1=${datatype}.1.csv
+fi
+
+cd ${mldir}
+cut --delimiter=$commasep --output-delimiter=$commasep -f 1,5 $datafile1 > $datafile2
+
+echo grabbed fields 1 and 5 from $datafile1
+head $datafile1 $datafile2
+exit
